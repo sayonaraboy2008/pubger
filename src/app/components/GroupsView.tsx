@@ -1,0 +1,16 @@
+import { Crown, Shield } from "lucide-react";
+import type { Group, Player, ScoringConfig } from "../../lib/types";
+import { getPoints, DEFAULT_SCORING } from "../../lib/utils";
+
+interface Props { groups: Group[]; players: Player[]; scoring?: ScoringConfig; showScores?: boolean; }
+
+export default function GroupsView({ groups, players, scoring = DEFAULT_SCORING, showScores = true }: Props) {
+  if (!groups.length) return <div className="py-16 text-center font-mono text-sm text-muted-foreground">Hali kamandalar qo&apos;shilmagan</div>;
+  return <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">{groups.map((group) => {
+    const members = players.filter((player) => player.groupId === group.id).sort((a,b) => showScores ? getPoints(b.kills,b.placement,scoring)-getPoints(a.kills,a.placement,scoring) : a.name.localeCompare(b.name));
+    return <div key={group.id} className="overflow-hidden rounded-lg border border-border bg-card">
+      <div className="flex items-center gap-2.5 border-b border-border bg-secondary px-4 py-3"><Shield size={14} className="shrink-0 text-primary"/><span className="rounded bg-primary/15 px-1.5 py-0.5 font-mono text-[10px] text-primary">{group.tag}</span><span className="truncate font-['Barlow_Condensed'] text-sm font-bold uppercase tracking-wider">{group.name}</span><span className="ml-auto font-mono text-[10px] text-muted-foreground">{members.length}</span></div>
+      <div className={`grid gap-1 border-b border-border/50 bg-muted/20 px-4 py-1.5 ${showScores ? "grid-cols-[1fr_auto_auto_auto]" : "grid-cols-[1fr_auto]"}`}><span className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">O&apos;yinchi</span>{showScores ? <><span className="w-9 text-right font-mono text-[10px] uppercase text-muted-foreground">Kill</span><span className="w-8 text-right font-mono text-[10px] uppercase text-muted-foreground">Pos</span><span className="w-9 text-right font-mono text-[10px] uppercase text-primary">Pts</span></> : <span className="font-mono text-[10px] uppercase text-muted-foreground">{group.tag}</span>}</div>
+      {members.length === 0 ? <div className="px-4 py-8 text-center font-mono text-xs text-muted-foreground/50">O&apos;yinchi yo&apos;q</div> : members.map((player,index) => <div key={player.id} className={`grid items-center gap-1 border-b border-border/40 px-4 py-2.5 last:border-0 ${showScores ? "grid-cols-[1fr_auto_auto_auto]" : "grid-cols-[1fr_auto]"} ${showScores && index === 0 ? "bg-primary/5" : ""}`}><div className="flex min-w-0 items-center gap-1.5">{showScores && <span className="w-4 shrink-0 font-mono text-[10px] text-muted-foreground">{index+1}</span>}{showScores && index===0 && <Crown size={10} className="shrink-0 text-primary"/>}<span className="truncate font-['Barlow_Condensed'] text-sm tracking-wide">{player.name}</span></div>{showScores ? <><span className="w-9 text-right font-mono text-xs text-accent">{player.kills}</span><span className="w-8 text-right font-mono text-xs text-muted-foreground">#{player.placement}</span><span className="w-9 text-right font-mono text-sm font-semibold text-primary">{getPoints(player.kills,player.placement,scoring)}</span></> : <span className="font-mono text-[10px] text-primary">[{group.tag}]</span>}</div>)}</div>;
+  })}</div>;
+}
