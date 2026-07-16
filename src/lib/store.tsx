@@ -7,9 +7,9 @@ import {
   type ReactNode,
 } from "react";
 import type { AppData, Tournament, Group, Player, BracketMatch, ScoringConfig, ClassicMapResult } from "./types";
-import { uid, createMatchesForTournament, promoteWinner, DEFAULT_SCORING } from "./utils";
+import { uid, createMatchesForTournament, promoteWinner } from "./utils";
 
-// Vercel uchun nisbiy manzil (relative path)
+// Vercel uchun nisbiy manzil
 const API_URL = import.meta.env.VITE_API_URL || "/api";
 
 const initialData: AppData = {
@@ -41,21 +41,38 @@ interface StoreCtx {
 
 const StoreContext = createContext<StoreCtx>(null!);
 
+// Helper: serverdan kelgan obyektdan id ni olish
+function normalizeId(obj: any): any {
+  if (!obj) return obj;
+  return { ...obj, id: obj.id || obj._id };
+}
+
+// Helper: xavfsiz fetch — xato bo'lsa console'ga chiqaradi
+async function apiFetch(url: string, options?: RequestInit) {
+  const res = await fetch(url, options);
+  if (!res.ok) {
+    const errText = await res.text();
+    console.error(`API Error [${options?.method || "GET"} ${url}]:`, errText);
+    throw new Error(errText || "API request failed");
+  }
+  return res.json();
+}
+
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<AppData>(initialData);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch initial data
+  // Ilovani yuklashda barcha ma'lumotlarni serverdan tortib olish
   useEffect(() => {
     fetch(`${API_URL}/data`)
       .then((res) => res.json())
       .then((serverData) => {
         setData({
-          tournaments: serverData.tournaments || [],
-          groups: serverData.groups || [],
-          players: serverData.players || [],
-          matches: serverData.matches || [],
-          classicResults: serverData.classicResults || [],
+          tournaments: (serverData.tournaments || []).map(normalizeId),
+          groups: (serverData.groups || []).map(normalizeId),
+          players: (serverData.players || []).map(normalizeId),
+          matches: (serverData.matches || []).map(normalizeId),
+          classicResults: (serverData.classicResults || []).map(normalizeId),
         });
       })
       .catch((err) => console.error("Failed to load data:", err))
@@ -66,46 +83,49 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setData((prev) => fn(prev));
   }, []);
 
+  // ─── Tournaments ─────────────────────────────────────────────────────────────
   const addTournament = useCallback(
     async (t: Omit<Tournament, "id" | "createdAt">): Promise<Tournament> => {
       const id = uid("t");
-      const tournament = { ...t, id };
-      const newMatches = createMatchesForTournament(id);
-      
-      // Save tournament
-      const res = await fetch(`${API_URL}/tournaments`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(tournament),
-      });
-      const savedTournament = await res.json();
-      savedTournament.id = savedTournament._id || savedTournament.id;
+      const createdAt = new Date().toISOString();
+      const tournament = { ...t, id, createdAt };
 
-      // Save initial matches
-      await fetch(`${API_URL}/matches/bulk`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newMatches),
-      });
+      // Turnirni serverga saqlash
+      const saved = normalizeId(
+        await apiFetch(`${API_URL}/tournaments`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(tournament),
+        })
+      );
+
+      // Boshlang'ich matchlarni yaratish (TDM uchun bracket)
+      const newMatches = createMatchesForTournament(saved.id);
+      if (newMatches.length > 0) {
+        await apiFetch(`${API_URL}/matches/bulk`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newMatches),
+        });
+      }
 
       mutate((d) => ({
         ...d,
-        tournaments: [...d.tournaments, savedTournament],
+        tournaments: [...d.tournaments, saved],
         matches: [...d.matches, ...newMatches],
       }));
-      return savedTournament;
+      return saved;
     },
     [mutate]
   );
 
   const updateTournament = useCallback(
     async (id: string, updates: Partial<Omit<Tournament, "id" | "createdAt">>) => {
-      await fetch(`${API_URL}/tournaments/${id}`, {
+      await apiFetch(`${API_URL}/tournaments/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updates),
       });
-
       mutate((d) => ({
         ...d,
         tournaments: d.tournaments.map((t) => (t.id === id ? { ...t, ...updates } : t)),
@@ -116,8 +136,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const deleteTournament = useCallback(
     async (id: string) => {
-      await fetch(`${API_URL}/tournaments/${id}`, { method: "DELETE" });
-
+      await apiFetch(`${API_URL}/tournaments/${id}`, { method: "DELETE" });
       mutate((d) => ({
         tournaments: d.tournaments.filter((t) => t.id !== id),
         groups: d.groups.filter((g) => g.tournamentId !== id),
@@ -129,18 +148,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [mutate]
   );
 
+  // ─── Groups ──────────────────────────────────────────────────────────────────
   const addGroup = useCallback(
     async (tournamentId: string, name: string, tag: string): Promise<Group> => {
       const group = { id: uid("g"), tournamentId, name, tag: tag.toUpperCase().slice(0, 2) };
-      
-      const res = await fetch(`${API_URL}/groups`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(group),
-      });
-      const saved = await res.json();
-      saved.id = saved._id || saved.id;
-
+      const saved = normalizeId(
+        await apiFetch(`${API_URL}/groups`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(group),
+        })
+      );
       mutate((d) => ({ ...d, groups: [...d.groups, saved] }));
       return saved;
     },
@@ -149,8 +167,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const deleteGroup = useCallback(
     async (id: string) => {
-      await fetch(`${API_URL}/groups/${id}`, { method: "DELETE" });
-
+      await apiFetch(`${API_URL}/groups/${id}`, { method: "DELETE" });
       mutate((d) => ({
         ...d,
         groups: d.groups.filter((g) => g.id !== id),
@@ -160,6 +177,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [mutate]
   );
 
+  // ─── Players ─────────────────────────────────────────────────────────────────
   const addPlayer = useCallback(
     async (p: Omit<Player, "id">): Promise<Player | null> => {
       let isFull = false;
@@ -171,18 +189,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         }
         return d;
       });
-
       if (isFull) return null;
 
       const player = { ...p, id: uid("p") };
-      const res = await fetch(`${API_URL}/players`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(player),
-      });
-      const saved = await res.json();
-      saved.id = saved._id || saved.id;
-
+      const saved = normalizeId(
+        await apiFetch(`${API_URL}/players`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(player),
+        })
+      );
       mutate((d) => ({ ...d, players: [...d.players, saved] }));
       return saved;
     },
@@ -191,12 +207,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const updatePlayer = useCallback(
     async (id: string, updates: Partial<Omit<Player, "id">>) => {
-      await fetch(`${API_URL}/players/${id}`, {
+      await apiFetch(`${API_URL}/players/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updates),
       });
-
       mutate((d) => ({
         ...d,
         players: d.players.map((p) => (p.id === id ? { ...p, ...updates } : p)),
@@ -207,13 +222,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const deletePlayer = useCallback(
     async (id: string) => {
-      await fetch(`${API_URL}/players/${id}`, { method: "DELETE" });
-
+      await apiFetch(`${API_URL}/players/${id}`, { method: "DELETE" });
       mutate((d) => ({ ...d, players: d.players.filter((p) => p.id !== id) }));
     },
     [mutate]
   );
 
+  // ─── Matches ─────────────────────────────────────────────────────────────────
   const updateMatchResult = useCallback(
     async (matchId: string, winnerId: string, s1: number, s2: number) => {
       let updatedMatches: BracketMatch[] = [];
@@ -222,13 +237,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         return { ...d, matches: updatedMatches };
       });
 
-      // Sync the whole matches collection (or just the ones that changed)
-      // For simplicity here, we can bulk update changed matches.
-      const changes = updatedMatches.filter(m => m.id === matchId || m.round > 0); // basic diff tracking
-      await fetch(`${API_URL}/matches/bulk-update`, {
+      await apiFetch(`${API_URL}/matches/bulk-update`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(changes),
+        body: JSON.stringify(updatedMatches),
       });
     },
     [mutate]
@@ -237,69 +249,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const updateMatchParticipants = useCallback(
     async (matchId: string, p1: string | null, p2: string | null) => {
       const updates = { player1Id: p1, player2Id: p2, score1: 0, score2: 0, winnerId: null };
-      
-      await fetch(`${API_URL}/matches/${matchId}`, {
+      await apiFetch(`${API_URL}/matches/${matchId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updates),
       });
-
       mutate((d) => ({
         ...d,
-        matches: d.matches.map((m) =>
-          m.id === matchId ? { ...m, ...updates } : m
-        ),
+        matches: d.matches.map((m) => (m.id === matchId ? { ...m, ...updates } : m)),
       }));
     },
     [mutate]
   );
-
-  const updateScoring = useCallback(
-    async (tournamentId: string, scoring: ScoringConfig) => {
-      await fetch(`${API_URL}/tournaments/${tournamentId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ scoring }),
-      });
-
-      mutate((d) => ({
-        ...d,
-        tournaments: d.tournaments.map((t) =>
-          t.id === tournamentId ? { ...t, scoring } : t
-        ),
-      }));
-    },
-    [mutate]
-  );
-
-  const saveClassicMapResult = useCallback(async (result: Omit<ClassicMapResult, "id"> & { id?: string }) => {
-    const isNew = !result.id;
-    const method = isNew ? "POST" : "PUT";
-    const url = isNew ? `${API_URL}/classicResults` : `${API_URL}/classicResults/${result.id}`;
-    
-    const payload = { ...result, id: result.id || uid("map") };
-
-    const res = await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    const saved = await res.json();
-    saved.id = saved._id || saved.id;
-
-    mutate((d) => ({
-      ...d,
-      classicResults: d.classicResults.some((r) => r.id === saved.id)
-        ? d.classicResults.map((r) => (r.id === saved.id ? saved : r))
-        : [...d.classicResults, saved],
-    }));
-  }, [mutate]);
-
-  const deleteClassicMapResult = useCallback(async (id: string) => {
-    await fetch(`${API_URL}/classicResults/${id}`, { method: "DELETE" });
-
-    mutate((d) => ({ ...d, classicResults: d.classicResults.filter((r) => r.id !== id) }));
-  }, [mutate]);
 
   const resetTournamentBracket = useCallback(
     async (tournamentId: string) => {
@@ -315,12 +276,69 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         return { ...d, matches: updatedMatches };
       });
 
-      const changes = updatedMatches.filter(m => m.tournamentId === tournamentId);
-      await fetch(`${API_URL}/matches/bulk-update`, {
+      const changes = updatedMatches.filter((m) => m.tournamentId === tournamentId);
+      await apiFetch(`${API_URL}/matches/bulk-update`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(changes),
       });
+    },
+    [mutate]
+  );
+
+  // ─── Scoring ─────────────────────────────────────────────────────────────────
+  const updateScoring = useCallback(
+    async (tournamentId: string, scoring: ScoringConfig) => {
+      await apiFetch(`${API_URL}/tournaments/${tournamentId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ scoring }),
+      });
+      mutate((d) => ({
+        ...d,
+        tournaments: d.tournaments.map((t) =>
+          t.id === tournamentId ? { ...t, scoring } : t
+        ),
+      }));
+    },
+    [mutate]
+  );
+
+  // ─── Classic Results ──────────────────────────────────────────────────────────
+  const saveClassicMapResult = useCallback(
+    async (result: Omit<ClassicMapResult, "id"> & { id?: string }) => {
+      const isNew = !result.id;
+      const payload = { ...result, id: result.id || uid("map") };
+      const method = isNew ? "POST" : "PUT";
+      const url = isNew
+        ? `${API_URL}/classicResults`
+        : `${API_URL}/classicResults/${payload.id}`;
+
+      const saved = normalizeId(
+        await apiFetch(url, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        })
+      );
+
+      mutate((d) => ({
+        ...d,
+        classicResults: d.classicResults.some((r) => r.id === saved.id)
+          ? d.classicResults.map((r) => (r.id === saved.id ? saved : r))
+          : [...d.classicResults, saved],
+      }));
+    },
+    [mutate]
+  );
+
+  const deleteClassicMapResult = useCallback(
+    async (id: string) => {
+      await apiFetch(`${API_URL}/classicResults/${id}`, { method: "DELETE" });
+      mutate((d) => ({
+        ...d,
+        classicResults: d.classicResults.filter((r) => r.id !== id),
+      }));
     },
     [mutate]
   );

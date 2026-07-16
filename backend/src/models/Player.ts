@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IPlayer extends Document {
+  id: string;
   tournamentId: string;
   groupId: string;
   name: string;
@@ -9,19 +10,21 @@ export interface IPlayer extends Document {
 }
 
 const PlayerSchema: Schema = new Schema({
-  tournamentId: { type: String, required: true, ref: 'Tournament' },
-  groupId: { type: String, required: true, ref: 'Group' },
+  _id: { type: String },
+  tournamentId: { type: String, required: true },
+  groupId: { type: String, required: true },
   name: { type: String, required: true },
   kills: { type: Number, default: 0 },
   placement: { type: Number, default: 0 }
+}, { _id: false });
+
+PlayerSchema.virtual('id').get(function () {
+  return this._id;
 });
 
 PlayerSchema.set('toJSON', {
   virtuals: true,
   versionKey: false,
-  transform: function (doc, ret) {
-    delete ret._id;
-  }
 });
 
 export default mongoose.model<IPlayer>('Player', PlayerSchema);

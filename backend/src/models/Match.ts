@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IMatch extends Document {
+  id: string;
   tournamentId: string;
   round: number;
   position: number;
@@ -12,7 +13,8 @@ export interface IMatch extends Document {
 }
 
 const MatchSchema: Schema = new Schema({
-  tournamentId: { type: String, required: true, ref: 'Tournament' },
+  _id: { type: String },
+  tournamentId: { type: String, required: true },
   round: { type: Number, required: true },
   position: { type: Number, required: true },
   player1Id: { type: String, default: null },
@@ -20,14 +22,15 @@ const MatchSchema: Schema = new Schema({
   score1: { type: Number, default: 0 },
   score2: { type: Number, default: 0 },
   winnerId: { type: String, default: null }
+}, { _id: false });
+
+MatchSchema.virtual('id').get(function () {
+  return this._id;
 });
 
 MatchSchema.set('toJSON', {
   virtuals: true,
   versionKey: false,
-  transform: function (doc, ret) {
-    delete ret._id;
-  }
 });
 
 export default mongoose.model<IMatch>('Match', MatchSchema);
