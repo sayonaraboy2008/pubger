@@ -30,10 +30,15 @@ app.get('/', (req, res) => {
 mongoose.connect(MONGO_URI)
   .then(() => {
     console.log('✅ Connected to MongoDB');
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-    });
+    // Vercel mühitida emasmiz, serverni mahalliy ishga tushiramiz
+    if (!process.env.VERCEL) {
+      app.listen(PORT, () => {
+        console.log(`🚀 Server running on port ${PORT}`);
+      });
+    }
   })
   .catch((error) => {
     console.error('❌ MongoDB connection error:', error);
   });
+
+export default app;

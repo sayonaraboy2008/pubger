@@ -9,7 +9,8 @@ import {
 import type { AppData, Tournament, Group, Player, BracketMatch, ScoringConfig, ClassicMapResult } from "./types";
 import { uid, createMatchesForTournament, promoteWinner, DEFAULT_SCORING } from "./utils";
 
-const API_URL = "http://localhost:5000/api";
+// Vercel uchun nisbiy manzil (relative path)
+const API_URL = import.meta.env.VITE_API_URL || "/api";
 
 const initialData: AppData = {
   tournaments: [],
