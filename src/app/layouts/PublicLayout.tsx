@@ -18,7 +18,7 @@ function TelegramIcon({ size = 18 }: { size?: number }) {
 }
 
 // Sizning Telegram kanal linkingizni shu yerga yozing:
-const TELEGRAM_CHANNEL_URL = "https://t.me/pubger_uz";
+const TELEGRAM_CHANNEL_URL = "https://t.me/Namangan_scrims";
 
 export default function PublicLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
