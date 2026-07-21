@@ -107,62 +107,71 @@ export default function Home() {
       )}
 
       {/* Hero */}
-      <section className="relative border-b border-primary/20 overflow-hidden bg-background min-h-[450px] flex items-center">
-        {/* Background Slider */}
-        {BG_IMAGES.map((img, idx) => (
-          <div 
-            key={idx}
-            className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${bgIndex === idx ? 'opacity-30 dark:opacity-40' : 'opacity-0'}`}
-            style={{ backgroundImage: `url(${img})` }}
-          />
-        ))}
-        {/* Dark/Light overlay for text readability */}
-        <div className="absolute inset-0 bg-background/80 dark:bg-black/60 pointer-events-none" />
-
+      <section className="relative border-b border-primary/20 overflow-hidden bg-background">
+        {/* Subtle grid pattern for gaming look */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: "linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)", backgroundSize: "40px 40px" }}></div>
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              "radial-gradient(ellipse 60% 100% at 50% 0%, rgba(242,169,0,0.12) 0%, transparent 70%)",
+              "radial-gradient(ellipse 40% 100% at 30% 0%, rgba(242,169,0,0.1) 0%, transparent 70%)",
           }}
         />
-        {/* Subtle grid pattern for gaming look */}
-        <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: "linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)", backgroundSize: "40px 40px" }}></div>
-        
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-1.5 h-8 bg-primary rounded-sm shadow-[0_0_10px_rgba(242,169,0,0.8)]" />
-            <span className="text-sm font-mono text-primary tracking-[0.3em] uppercase font-bold drop-shadow-md">
-              O&apos;zbekiston · PUBG Mobile
-            </span>
-          </div>
-          <h1 className="font-['Barlow_Condensed'] font-extrabold text-5xl sm:text-6xl lg:text-7xl tracking-widest uppercase text-foreground leading-[0.9] mb-6 drop-shadow-xl">
-            Battle Royale
-            <br />
-            <span className="text-primary drop-shadow-[0_0_15px_rgba(242,169,0,0.5)]">Turnir Platformasi</span>
-          </h1>
-          <p className="text-muted-foreground text-sm sm:text-base max-w-xl leading-relaxed border-l-2 border-primary/50 pl-4 bg-primary/5 py-2 rounded-r">
-            PUBG Mobile turnirlarini kuzatib boring — guruh natijalari, bracket va g&apos;oliblar real vaqtda yangilanib turadi. O'z jamoangizni g'alaba sari yetaklang!
-          </p>
 
-          {/* Stats */}
-          <div className="flex flex-wrap gap-8 mt-10">
-            {[
-              { value: data.tournaments.length, label: "Jami Turnirlar" },
-              { value: data.tournaments.filter((t) => t.status === "ongoing").length, label: "Faol Turnirlar" },
-              { value: data.players.length, label: "Ro'yxatdan o'tganlar" },
-            ].map((s) => (
-              <div key={s.label} className="flex flex-col bg-secondary/40 border border-primary/10 rounded-lg p-4 backdrop-blur-sm shadow-lg min-w-[140px] relative overflow-hidden group">
-                <div className="absolute top-0 left-0 w-full h-1 bg-primary/30 group-hover:bg-primary transition-colors"></div>
-                <span className="font-['Barlow_Condensed'] font-extrabold text-4xl text-foreground group-hover:text-primary transition-colors leading-none drop-shadow-md">
-                  {s.value}
-                </span>
-                <span className="text-[11px] font-mono text-muted-foreground uppercase tracking-widest mt-2 font-semibold">
-                  {s.label}
-                </span>
-              </div>
-            ))}
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-12 lg:py-20 flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
+          
+          {/* Left Content */}
+          <div className="flex-1 w-full text-center lg:text-left relative z-10">
+            <div className="flex items-center justify-center lg:justify-start gap-3 mb-6">
+              <div className="w-1.5 h-8 bg-primary rounded-sm shadow-[0_0_10px_rgba(242,169,0,0.8)]" />
+              <span className="text-sm font-mono text-primary tracking-[0.3em] uppercase font-bold drop-shadow-md">
+                O&apos;zbekiston · PUBG Mobile
+              </span>
+            </div>
+            <h1 className="font-['Barlow_Condensed'] font-extrabold text-5xl sm:text-6xl lg:text-7xl tracking-widest uppercase text-foreground leading-[0.9] mb-6 drop-shadow-xl">
+              Battle Royale
+              <br />
+              <span className="text-primary drop-shadow-[0_0_15px_rgba(242,169,0,0.5)]">Turnir Platformasi</span>
+            </h1>
+            <p className="text-muted-foreground text-sm sm:text-base max-w-xl mx-auto lg:mx-0 leading-relaxed border-l-2 border-primary/50 pl-4 bg-primary/5 py-2 rounded-r">
+              PUBG Mobile turnirlarini kuzatib boring — guruh natijalari, bracket va g&apos;oliblar real vaqtda yangilanib turadi. O'z jamoangizni g'alaba sari yetaklang!
+            </p>
+
+            {/* Stats */}
+            <div className="flex flex-wrap justify-center lg:justify-start gap-5 sm:gap-8 mt-10">
+              {[
+                { value: data.tournaments.length, label: "Jami Turnirlar" },
+                { value: data.tournaments.filter((t) => t.status === "ongoing").length, label: "Faol Turnirlar" },
+                { value: data.players.length, label: "Ro'yxatdan o'tganlar" },
+              ].map((s) => (
+                <div key={s.label} className="flex flex-col bg-secondary/40 border border-primary/10 rounded-lg p-4 backdrop-blur-sm shadow-lg min-w-[130px] relative overflow-hidden group">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-primary/30 group-hover:bg-primary transition-colors"></div>
+                  <span className="font-['Barlow_Condensed'] font-extrabold text-4xl text-foreground group-hover:text-primary transition-colors leading-none drop-shadow-md">
+                    {s.value}
+                  </span>
+                  <span className="text-[10px] sm:text-[11px] font-mono text-muted-foreground uppercase tracking-widest mt-2 font-semibold">
+                    {s.label}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
+
+          {/* Right Content: Image Slider */}
+          <div className="w-full lg:w-5/12 xl:w-1/2 h-[300px] sm:h-[400px] relative rounded-2xl overflow-hidden border border-primary/20 shadow-[0_0_30px_rgba(242,169,0,0.15)] group transform hover:-translate-y-1 transition-all duration-300">
+            {BG_IMAGES.map((img, idx) => (
+              <div 
+                key={idx}
+                className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${bgIndex === idx ? 'opacity-100 scale-105' : 'opacity-0 scale-100'}`}
+                style={{ backgroundImage: `url(${img})` }}
+              />
+            ))}
+            
+            {/* Dark gradient overlay for a gaming vibe */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-2xl pointer-events-none" />
+          </div>
+
         </div>
       </section>
 
