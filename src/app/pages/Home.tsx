@@ -1,11 +1,20 @@
 import { useState, useEffect } from "react";
-import { Crosshair, Search, SlidersHorizontal, X, ShoppingCart } from "lucide-react";
+import {
+  Crosshair,
+  Search,
+  SlidersHorizontal,
+  X,
+  ShoppingCart,
+} from "lucide-react";
 import { useStore } from "../../lib/store";
 import type { TournamentStatus } from "../../lib/types";
 import TournamentCard from "../components/TournamentCard";
 import { statusLabel } from "../../lib/utils";
 
-const STATUS_FILTERS: Array<{ value: TournamentStatus | "all"; label: string }> = [
+const STATUS_FILTERS: Array<{
+  value: TournamentStatus | "all";
+  label: string;
+}> = [
   { value: "all", label: "Barchasi" },
   { value: "ongoing", label: statusLabel.ongoing },
   { value: "upcoming", label: statusLabel.upcoming },
@@ -13,10 +22,10 @@ const STATUS_FILTERS: Array<{ value: TournamentStatus | "all"; label: string }> 
 ];
 
 const BG_IMAGES = [
-  "https://w0.peakpx.com/wallpaper/403/92/HD-wallpaper-pubg-mobile-season-13-pubg-mobile-season-13-pubg-mobile-games.jpg",
-  "https://w0.peakpx.com/wallpaper/559/134/HD-wallpaper-pubg-mobile-pubg-thumbnail.jpg",
-  "https://w0.peakpx.com/wallpaper/950/758/HD-wallpaper-pubg-mobile-4th-anniversary-colorful.jpg",
-  "https://w0.peakpx.com/wallpaper/317/472/HD-wallpaper-pubg-mobile-1-9-update.jpg"
+  "https://esportsinsider.com/wp-content/uploads/2025/11/pubg-mobile-tournament-application-process.jpg",
+  "https://egw.news/_next/image?url=https%3A%2F%2Fegw.news%2Fuploads%2Fnews%2F1699790125240.webp&w=1920&q=75",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRgWo5K990-kqzIcaH_fr6dEv03zvniCT6zAe7iKuMg-bhFhRXFtdAqCbnq&s=10",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQQV7UYQfgUW-XjClmV_17hzpaYQPN8yRAminYFA3YyTEA0sIjcG2cJsuM&s=10",
 ];
 
 export default function Home() {
@@ -29,7 +38,7 @@ export default function Home() {
   useEffect(() => {
     // Show ad after a short delay on first visit
     const adTimer = setTimeout(() => setShowAd(true), 1500);
-    
+
     // Background slider
     const bgTimer = setInterval(() => {
       setBgIndex((prev) => (prev + 1) % BG_IMAGES.length);
@@ -48,7 +57,10 @@ export default function Home() {
       const matchStatus = filter === "all" || t.status === filter;
       return matchSearch && matchStatus;
     })
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    );
 
   return (
     <div>
@@ -58,42 +70,48 @@ export default function Home() {
           <div className="relative w-full max-w-sm bg-card border-2 border-primary/50 rounded-2xl shadow-[0_0_60px_rgba(242,169,0,0.3)] overflow-hidden animate-in zoom-in-95 duration-300 isolate">
             {/* Pulsing glow behind content */}
             <div className="absolute inset-0 bg-primary/10 blur-xl animate-pulse -z-10" />
-            
+
             {/* Close button */}
-            <button 
+            <button
               onClick={() => setShowAd(false)}
               className="absolute top-3 right-3 text-black/70 hover:text-black bg-white/30 hover:bg-white/60 dark:text-white/70 dark:hover:text-white dark:bg-black/30 dark:hover:bg-black/60 rounded-full transition-colors p-1.5 z-20"
               aria-label="Yopish"
             >
               <X size={16} />
             </button>
-            
+
             {/* Header/Banner */}
             <div className="bg-gradient-to-br from-primary to-primary/60 p-6 pt-8 flex flex-col items-center justify-center text-black relative overflow-hidden">
               <div className="absolute -right-4 -top-4 opacity-10 animate-pulse">
                 <ShoppingCart size={100} />
               </div>
-              <ShoppingCart size={36} className="mb-3 drop-shadow-md text-black" />
+              <ShoppingCart
+                size={36}
+                className="mb-3 drop-shadow-md text-black"
+              />
               <h3 className="font-['Barlow_Condensed'] font-extrabold text-3xl uppercase tracking-wider text-center leading-tight drop-shadow-sm text-black">
-                Eng Ishonchli va<br/>Tezkor UC Service
+                Eng Ishonchli va
+                <br />
+                Tezkor UC Service
               </h3>
             </div>
-            
+
             {/* Body */}
             <div className="p-6 text-center flex flex-col items-center bg-card relative z-10">
               <p className="text-sm text-muted-foreground mb-5 leading-relaxed font-mono">
-                Akkountingiz uchun UC kerakmi? O'zbekistondagi eng ishonchli va arzon xizmatdan foydalaning!
+                Akkountingiz uchun UC kerakmi? O'zbekistondagi eng ishonchli va
+                arzon xizmatdan foydalaning!
               </p>
-              
+
               <div className="bg-primary/10 border border-primary/30 rounded-xl py-3 px-4 mb-6 w-full relative overflow-hidden group">
                 <div className="absolute inset-0 bg-primary/5 group-hover:bg-primary/10 transition-colors"></div>
                 <p className="text-primary font-['Barlow_Condensed'] font-bold text-[15px] uppercase tracking-widest relative z-10 animate-pulse">
                   🎁 Bizning nomimizdan xarid qilsangiz maxsus chegirma!
                 </p>
               </div>
-              
-              <a 
-                href="https://t.me/Namangan_scrims"
+
+              <a
+                href="https://t.me/abduraximov_uc"
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setShowAd(false)}
@@ -109,7 +127,14 @@ export default function Home() {
       {/* Hero */}
       <section className="relative border-b border-primary/20 overflow-hidden bg-background">
         {/* Subtle grid pattern for gaming look */}
-        <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: "linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)", backgroundSize: "40px 40px" }}></div>
+        <div
+          className="absolute inset-0 pointer-events-none opacity-[0.03]"
+          style={{
+            backgroundImage:
+              "linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
+          }}
+        ></div>
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
@@ -119,7 +144,6 @@ export default function Home() {
         />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-12 lg:py-20 flex flex-col lg:flex-row items-center gap-10 lg:gap-16">
-          
           {/* Left Content */}
           <div className="flex-1 w-full text-center lg:text-left relative z-10">
             <div className="flex items-center justify-center lg:justify-start gap-3 mb-6">
@@ -131,20 +155,31 @@ export default function Home() {
             <h1 className="font-['Barlow_Condensed'] font-extrabold text-5xl sm:text-6xl lg:text-7xl tracking-widest uppercase text-foreground leading-[0.9] mb-6 drop-shadow-xl">
               Battle Royale
               <br />
-              <span className="text-primary drop-shadow-[0_0_15px_rgba(242,169,0,0.5)]">Turnir Platformasi</span>
+              <span className="text-primary drop-shadow-[0_0_15px_rgba(242,169,0,0.5)]">
+                Turnir Platformasi
+              </span>
             </h1>
             <p className="text-muted-foreground text-sm sm:text-base max-w-xl mx-auto lg:mx-0 leading-relaxed border-l-2 border-primary/50 pl-4 bg-primary/5 py-2 rounded-r">
-              PUBG Mobile turnirlarini kuzatib boring — guruh natijalari, bracket va g&apos;oliblar real vaqtda yangilanib turadi. O'z jamoangizni g'alaba sari yetaklang!
+              PUBG Mobile turnirlarini kuzatib boring — guruh natijalari,
+              bracket va g&apos;oliblar real vaqtda yangilanib turadi. O'z
+              jamoangizni g'alaba sari yetaklang!
             </p>
 
             {/* Stats */}
             <div className="flex flex-wrap justify-center lg:justify-start gap-5 sm:gap-8 mt-10">
               {[
                 { value: data.tournaments.length, label: "Jami Turnirlar" },
-                { value: data.tournaments.filter((t) => t.status === "ongoing").length, label: "Faol Turnirlar" },
+                {
+                  value: data.tournaments.filter((t) => t.status === "ongoing")
+                    .length,
+                  label: "Faol Turnirlar",
+                },
                 { value: data.players.length, label: "Ro'yxatdan o'tganlar" },
               ].map((s) => (
-                <div key={s.label} className="flex flex-col bg-secondary/40 border border-primary/10 rounded-lg p-4 backdrop-blur-sm shadow-lg min-w-[130px] relative overflow-hidden group">
+                <div
+                  key={s.label}
+                  className="flex flex-col bg-secondary/40 border border-primary/10 rounded-lg p-4 backdrop-blur-sm shadow-lg min-w-[130px] relative overflow-hidden group"
+                >
                   <div className="absolute top-0 left-0 w-full h-1 bg-primary/30 group-hover:bg-primary transition-colors"></div>
                   <span className="font-['Barlow_Condensed'] font-extrabold text-4xl text-foreground group-hover:text-primary transition-colors leading-none drop-shadow-md">
                     {s.value}
@@ -160,18 +195,17 @@ export default function Home() {
           {/* Right Content: Image Slider */}
           <div className="w-full lg:w-5/12 xl:w-1/2 h-[300px] sm:h-[400px] relative rounded-2xl overflow-hidden border border-primary/20 shadow-[0_0_30px_rgba(242,169,0,0.15)] group transform hover:-translate-y-1 transition-all duration-300">
             {BG_IMAGES.map((img, idx) => (
-              <div 
+              <div
                 key={idx}
-                className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${bgIndex === idx ? 'opacity-100 scale-105' : 'opacity-0 scale-100'}`}
+                className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${bgIndex === idx ? "opacity-100 scale-105" : "opacity-0 scale-100"}`}
                 style={{ backgroundImage: `url(${img})` }}
               />
             ))}
-            
+
             {/* Dark gradient overlay for a gaming vibe */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent pointer-events-none" />
             <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-2xl pointer-events-none" />
           </div>
-
         </div>
       </section>
 
@@ -181,7 +215,10 @@ export default function Home() {
         <div className="flex flex-col sm:flex-row gap-4 mb-10 items-start sm:items-center justify-between">
           {/* Search */}
           <div className="relative flex-1 max-w-md w-full">
-            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-primary" />
+            <Search
+              size={16}
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-primary"
+            />
             <input
               className="w-full bg-secondary/80 border border-primary/20 rounded-lg pl-10 pr-4 py-3 text-sm text-foreground font-mono placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all shadow-[0_0_10px_rgba(0,0,0,0.05)] dark:shadow-[0_0_10px_rgba(0,0,0,0.5)]"
               placeholder="Turnir qidirish..."
@@ -192,7 +229,10 @@ export default function Home() {
 
           {/* Status filter */}
           <div className="flex items-center gap-1 p-1.5 bg-secondary/80 rounded-lg border border-primary/20 shadow-[0_0_10px_rgba(0,0,0,0.05)] dark:shadow-[0_0_10px_rgba(0,0,0,0.5)] w-full sm:w-auto overflow-x-auto">
-            <SlidersHorizontal size={14} className="text-primary mx-2 flex-shrink-0" />
+            <SlidersHorizontal
+              size={14}
+              className="text-primary mx-2 flex-shrink-0"
+            />
             {STATUS_FILTERS.map((f) => (
               <button
                 key={f.value}
@@ -212,7 +252,10 @@ export default function Home() {
         {/* Grid */}
         {filtered.length === 0 ? (
           <div className="py-20 text-center">
-            <Crosshair size={32} className="text-muted-foreground/30 mx-auto mb-3" />
+            <Crosshair
+              size={32}
+              className="text-muted-foreground/30 mx-auto mb-3"
+            />
             <p className="text-muted-foreground font-mono text-sm">
               {search ? "Hech narsa topilmadi" : "Hali turnirlar yo'q"}
             </p>
@@ -223,7 +266,9 @@ export default function Home() {
               <TournamentCard
                 key={t.id}
                 tournament={t}
-                playerCount={data.players.filter((p) => p.tournamentId === t.id).length}
+                playerCount={
+                  data.players.filter((p) => p.tournamentId === t.id).length
+                }
               />
             ))}
           </div>
