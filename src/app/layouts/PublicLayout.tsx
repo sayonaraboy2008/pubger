@@ -1,6 +1,7 @@
 import { Outlet, NavLink, Link } from "react-router";
-import { Crosshair, Trophy, Menu, X } from "lucide-react";
-import { useState } from "react";
+import { Crosshair, Trophy, Menu, X, Sun, Moon } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useTheme } from "next-themes";
 
 // Telegram SVG icon (rasmiy logo)
 function TelegramIcon({ size = 18 }: { size?: number }) {
@@ -22,6 +23,10 @@ const TELEGRAM_CHANNEL_URL = "https://t.me/Namangan_scrims";
 
 export default function PublicLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
 
   return (
     <div
@@ -30,10 +35,19 @@ export default function PublicLayout() {
     >
       {/* Ambient glow - fixed, pastda qoladi */}
       <div
-        className="fixed inset-0 pointer-events-none z-0"
+        className="fixed inset-0 pointer-events-none z-0 dark:block hidden"
         style={{
           background:
             "radial-gradient(ellipse 80% 40% at 50% -5%, rgba(242,169,0,0.15) 0%, transparent 70%)",
+        }}
+      />
+      
+      {/* Light mode ambient glow */}
+      <div
+        className="fixed inset-0 pointer-events-none z-0 dark:hidden block"
+        style={{
+          background:
+            "radial-gradient(ellipse 80% 40% at 50% -5%, rgba(242,169,0,0.05) 0%, transparent 70%)",
         }}
       />
 
@@ -41,8 +55,8 @@ export default function PublicLayout() {
           HEADER — sticky top-0, z-50 (content ustida qoladi)
           ═══════════════════════════════════════════════════════════ */}
       <header
-        className="sticky top-0 z-50 border-b border-primary/20 bg-[#0f0f11]/80 backdrop-blur-xl"
-        style={{ isolation: "isolate", boxShadow: "0 4px 30px rgba(0, 0, 0, 0.5)" }}
+        className="sticky top-0 z-50 border-b border-primary/20 bg-background/80 backdrop-blur-xl"
+        style={{ isolation: "isolate", boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)" }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center gap-4">
 
@@ -87,12 +101,23 @@ export default function PublicLayout() {
               href={TELEGRAM_CHANNEL_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden sm:flex items-center gap-2 text-xs font-mono text-[#229ED9] hover:text-white border border-[#229ED9]/40 hover:border-[#229ED9] hover:bg-[#229ED9]/10 px-3 py-1.5 rounded transition-all"
+              className="hidden sm:flex items-center gap-2 text-xs font-mono text-[#229ED9] hover:text-foreground border border-[#229ED9]/40 hover:border-[#229ED9] hover:bg-[#229ED9]/10 px-3 py-1.5 rounded transition-all"
               aria-label="Telegram kanalimiz"
             >
               <TelegramIcon size={15} />
               <span>Telegram</span>
             </a>
+
+            {/* Theme Toggle */}
+            {mounted && (
+              <button
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="flex items-center justify-center w-9 h-9 rounded text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+                aria-label="Mavzuni o'zgartirish"
+              >
+                {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
+              </button>
+            )}
 
             {/* Telegram tugmasi — mobil (faqat icon) */}
             <a
