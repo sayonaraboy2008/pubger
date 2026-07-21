@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Crosshair, Search, SlidersHorizontal } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Crosshair, Search, SlidersHorizontal, X, ShoppingCart } from "lucide-react";
 import { useStore } from "../../lib/store";
 import type { TournamentStatus } from "../../lib/types";
 import TournamentCard from "../components/TournamentCard";
@@ -16,6 +16,13 @@ export default function Home() {
   const { data } = useStore();
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<TournamentStatus | "all">("all");
+  const [showAd, setShowAd] = useState(false);
+
+  useEffect(() => {
+    // Show ad after a short delay on first visit
+    const timer = setTimeout(() => setShowAd(true), 500);
+    return () => clearTimeout(timer);
+  }, []);
 
   const filtered = data.tournaments
     .filter((t) => {
@@ -28,6 +35,57 @@ export default function Home() {
 
   return (
     <div>
+      {/* UC Service Ad Modal */}
+      {showAd && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+          <div className="relative w-full max-w-sm bg-[#151518] border border-primary/30 rounded-2xl shadow-[0_0_40px_rgba(242,169,0,0.2)] overflow-hidden animate-in zoom-in-95 duration-300">
+            {/* Close button */}
+            <button 
+              onClick={() => setShowAd(false)}
+              className="absolute top-3 right-3 text-black hover:text-white bg-white/20 hover:bg-white/40 rounded-full transition-colors p-1.5 z-10"
+              aria-label="Yopish"
+            >
+              <X size={16} />
+            </button>
+            
+            {/* Header/Banner */}
+            <div className="bg-gradient-to-br from-primary to-primary/60 p-6 pt-8 flex flex-col items-center justify-center text-black relative overflow-hidden">
+              <div className="absolute -right-4 -top-4 opacity-10">
+                <ShoppingCart size={100} />
+              </div>
+              <ShoppingCart size={36} className="mb-3 drop-shadow-md" />
+              <h3 className="font-['Barlow_Condensed'] font-extrabold text-3xl uppercase tracking-wider text-center leading-tight drop-shadow-sm">
+                Eng Ishonchli va<br/>Tezkor UC Service
+              </h3>
+            </div>
+            
+            {/* Body */}
+            <div className="p-6 text-center flex flex-col items-center">
+              <p className="text-sm text-muted-foreground mb-5 leading-relaxed font-mono">
+                Akkountingiz uchun UC kerakmi? O'zbekistondagi eng ishonchli va arzon xizmatdan foydalaning!
+              </p>
+              
+              <div className="bg-primary/10 border border-primary/30 rounded-xl py-3 px-4 mb-6 w-full relative overflow-hidden group">
+                <div className="absolute inset-0 bg-primary/5 group-hover:bg-primary/10 transition-colors"></div>
+                <p className="text-primary font-['Barlow_Condensed'] font-bold text-sm uppercase tracking-widest relative z-10">
+                  🎁 Bizning nomimizdan xarid qilsangiz maxsus chegirma!
+                </p>
+              </div>
+              
+              <a 
+                href="https://t.me/pubger_uz"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setShowAd(false)}
+                className="w-full bg-primary hover:bg-primary/90 text-black font-['Barlow_Condensed'] font-bold text-xl uppercase tracking-widest py-3.5 rounded-xl shadow-[0_4px_20px_rgba(242,169,0,0.4)] hover:shadow-[0_4px_30px_rgba(242,169,0,0.6)] hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2"
+              >
+                UC Xarid Qilish
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero */}
       <section className="relative border-b border-primary/20 overflow-hidden bg-black/40">
         <div
