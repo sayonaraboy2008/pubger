@@ -29,42 +29,46 @@ export default function Home() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative border-b border-border overflow-hidden">
+      <section className="relative border-b border-primary/20 overflow-hidden bg-black/40">
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
             background:
-              "radial-gradient(ellipse 60% 100% at 50% 0%, rgba(240,165,0,0.08) 0%, transparent 70%)",
+              "radial-gradient(ellipse 60% 100% at 50% 0%, rgba(242,169,0,0.12) 0%, transparent 70%)",
           }}
         />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-20">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-1 h-8 bg-primary rounded-full" />
-            <span className="text-xs font-mono text-primary/70 tracking-[0.25em] uppercase">
+        {/* Subtle grid pattern for gaming look */}
+        <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: "linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)", backgroundSize: "40px 40px" }}></div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-1.5 h-8 bg-primary rounded-sm shadow-[0_0_10px_rgba(242,169,0,0.8)]" />
+            <span className="text-sm font-mono text-primary tracking-[0.3em] uppercase font-bold drop-shadow-md">
               O&apos;zbekiston · PUBG Mobile
             </span>
           </div>
-          <h1 className="font-['Barlow_Condensed'] font-extrabold text-4xl sm:text-5xl lg:text-6xl tracking-wider uppercase text-foreground leading-none mb-4">
-            Turnir
+          <h1 className="font-['Barlow_Condensed'] font-extrabold text-5xl sm:text-6xl lg:text-7xl tracking-widest uppercase text-white leading-[0.9] mb-6 drop-shadow-xl">
+            Battle Royale
             <br />
-            <span className="text-primary">Platformasi</span>
+            <span className="text-primary drop-shadow-[0_0_15px_rgba(242,169,0,0.5)]">Turnir Platformasi</span>
           </h1>
-          <p className="text-muted-foreground text-sm sm:text-base max-w-xl leading-relaxed">
-            PUBG Mobile turnirlarini kuzatib boring — guruh natijalari, bracket va g&apos;oliblar real vaqtda yangilanib turadi.
+          <p className="text-muted-foreground text-sm sm:text-base max-w-xl leading-relaxed border-l-2 border-primary/50 pl-4 bg-primary/5 py-2 rounded-r">
+            PUBG Mobile turnirlarini kuzatib boring — guruh natijalari, bracket va g&apos;oliblar real vaqtda yangilanib turadi. O'z jamoangizni g'alaba sari yetaklang!
           </p>
 
           {/* Stats */}
-          <div className="flex flex-wrap gap-6 mt-8">
+          <div className="flex flex-wrap gap-8 mt-10">
             {[
-              { value: data.tournaments.length, label: "Turnirlar" },
-              { value: data.tournaments.filter((t) => t.status === "ongoing").length, label: "Faol" },
-              { value: data.players.length, label: "O'yinchilar" },
+              { value: data.tournaments.length, label: "Jami Turnirlar" },
+              { value: data.tournaments.filter((t) => t.status === "ongoing").length, label: "Faol Turnirlar" },
+              { value: data.players.length, label: "Ro'yxatdan o'tganlar" },
             ].map((s) => (
-              <div key={s.label} className="flex flex-col">
-                <span className="font-['Barlow_Condensed'] font-extrabold text-3xl text-primary leading-none">
+              <div key={s.label} className="flex flex-col bg-secondary/40 border border-primary/10 rounded-lg p-4 backdrop-blur-sm shadow-lg min-w-[140px] relative overflow-hidden group">
+                <div className="absolute top-0 left-0 w-full h-1 bg-primary/30 group-hover:bg-primary transition-colors"></div>
+                <span className="font-['Barlow_Condensed'] font-extrabold text-4xl text-white group-hover:text-primary transition-colors leading-none drop-shadow-md">
                   {s.value}
                 </span>
-                <span className="text-xs font-mono text-muted-foreground uppercase tracking-wider mt-0.5">
+                <span className="text-[11px] font-mono text-muted-foreground uppercase tracking-widest mt-2 font-semibold">
                   {s.label}
                 </span>
               </div>
@@ -76,12 +80,12 @@ export default function Home() {
       {/* Filters & list */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
         {/* Filter bar */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-8">
+        <div className="flex flex-col sm:flex-row gap-4 mb-10 items-start sm:items-center justify-between">
           {/* Search */}
-          <div className="relative flex-1 max-w-md">
-            <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <div className="relative flex-1 max-w-md w-full">
+            <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-primary" />
             <input
-              className="w-full bg-secondary border border-border rounded-lg pl-9 pr-4 py-2.5 text-sm text-foreground font-mono placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/50 transition-colors"
+              className="w-full bg-secondary/80 border border-primary/20 rounded-lg pl-10 pr-4 py-3 text-sm text-white font-mono placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/50 transition-all shadow-[0_0_10px_rgba(0,0,0,0.5)]"
               placeholder="Turnir qidirish..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -89,16 +93,16 @@ export default function Home() {
           </div>
 
           {/* Status filter */}
-          <div className="flex items-center gap-1 p-1 bg-secondary/50 rounded-lg border border-border">
-            <SlidersHorizontal size={13} className="text-muted-foreground ml-1 flex-shrink-0" />
+          <div className="flex items-center gap-1 p-1.5 bg-secondary/80 rounded-lg border border-primary/20 shadow-[0_0_10px_rgba(0,0,0,0.5)] w-full sm:w-auto overflow-x-auto">
+            <SlidersHorizontal size={14} className="text-primary mx-2 flex-shrink-0" />
             {STATUS_FILTERS.map((f) => (
               <button
                 key={f.value}
                 onClick={() => setFilter(f.value)}
-                className={`px-3 py-1.5 rounded text-xs font-['Barlow_Condensed'] font-semibold tracking-wide transition-all ${
+                className={`px-4 py-2 rounded text-[13px] font-['Barlow_Condensed'] font-bold tracking-widest uppercase transition-all whitespace-nowrap ${
                   filter === f.value
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-primary text-black shadow-[0_0_10px_rgba(242,169,0,0.4)]"
+                    : "text-muted-foreground hover:text-white hover:bg-white/5"
                 }`}
               >
                 {f.label}

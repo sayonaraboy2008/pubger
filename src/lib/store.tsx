@@ -62,21 +62,28 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<AppData>(initialData);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Ilovani yuklashda barcha ma'lumotlarni serverdan tortib olish
+  // Ilovani yuklashda va har 5 soniyada ma'lumotlarni yangilab turish (real-time o'xshash)
   useEffect(() => {
-    fetch(`${API_URL}/data`)
-      .then((res) => res.json())
-      .then((serverData) => {
-        setData({
-          tournaments: (serverData.tournaments || []).map(normalizeId),
-          groups: (serverData.groups || []).map(normalizeId),
-          players: (serverData.players || []).map(normalizeId),
-          matches: (serverData.matches || []).map(normalizeId),
-          classicResults: (serverData.classicResults || []).map(normalizeId),
-        });
-      })
-      .catch((err) => console.error("Failed to load data:", err))
-      .finally(() => setIsLoading(false));
+    const loadData = () => {
+      fetch(`${API_URL}/data`)
+        .then((res) => res.json())
+        .then((serverData) => {
+          setData({
+            tournaments: (serverData.tournaments || []).map(normalizeId),
+            groups: (serverData.groups || []).map(normalizeId),
+            players: (serverData.players || []).map(normalizeId),
+            matches: (serverData.matches || []).map(normalizeId),
+            classicResults: (serverData.classicResults || []).map(normalizeId),
+          });
+        })
+        .catch((err) => console.error("Failed to load data:", err))
+        .finally(() => setIsLoading(false));
+    };
+
+    loadData();
+    const intervalId = setInterval(loadData, 5000);
+
+    return () => clearInterval(intervalId);
   }, []);
 
   const mutate = useCallback((fn: (d: AppData) => AppData) => {

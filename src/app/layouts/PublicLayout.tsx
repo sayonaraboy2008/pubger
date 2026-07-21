@@ -33,7 +33,7 @@ export default function PublicLayout() {
         className="fixed inset-0 pointer-events-none z-0"
         style={{
           background:
-            "radial-gradient(ellipse 80% 35% at 50% -5%, rgba(240,165,0,0.07) 0%, transparent 70%)",
+            "radial-gradient(ellipse 80% 40% at 50% -5%, rgba(242,169,0,0.15) 0%, transparent 70%)",
         }}
       />
 
@@ -41,8 +41,8 @@ export default function PublicLayout() {
           HEADER — sticky top-0, z-50 (content ustida qoladi)
           ═══════════════════════════════════════════════════════════ */}
       <header
-        className="sticky top-0 z-50 border-b border-border bg-card/90 backdrop-blur-md"
-        style={{ isolation: "isolate" }}
+        className="sticky top-0 z-50 border-b border-primary/20 bg-[#0f0f11]/80 backdrop-blur-xl"
+        style={{ isolation: "isolate", boxShadow: "0 4px 30px rgba(0, 0, 0, 0.5)" }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center gap-4">
 
