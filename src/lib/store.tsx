@@ -6,7 +6,15 @@ import {
   useCallback,
   type ReactNode,
 } from "react";
-import type { AppData, Tournament, Group, Player, BracketMatch, ScoringConfig, ClassicMapResult } from "./types";
+import type {
+  AppData,
+  Tournament,
+  Group,
+  Player,
+  BracketMatch,
+  ScoringConfig,
+  ClassicMapResult,
+} from "./types";
 import { uid, createMatchesForTournament, promoteWinner } from "./utils";
 
 // Vercel uchun nisbiy manzil
@@ -23,19 +31,41 @@ const initialData: AppData = {
 interface StoreCtx {
   data: AppData;
   isLoading: boolean;
-  addTournament: (t: Omit<Tournament, "id" | "createdAt">) => Promise<Tournament>;
-  updateTournament: (id: string, updates: Partial<Omit<Tournament, "id" | "createdAt">>) => Promise<void>;
+  addTournament: (
+    t: Omit<Tournament, "id" | "createdAt">,
+  ) => Promise<Tournament>;
+  updateTournament: (
+    id: string,
+    updates: Partial<Omit<Tournament, "id" | "createdAt">>,
+  ) => Promise<void>;
   deleteTournament: (id: string) => Promise<void>;
   addGroup: (tournamentId: string, name: string, tag: string) => Promise<Group>;
   deleteGroup: (id: string) => Promise<void>;
   addPlayer: (p: Omit<Player, "id">) => Promise<Player | null>;
-  updatePlayer: (id: string, updates: Partial<Omit<Player, "id">>) => Promise<void>;
+  updatePlayer: (
+    id: string,
+    updates: Partial<Omit<Player, "id">>,
+  ) => Promise<void>;
   deletePlayer: (id: string) => Promise<void>;
-  updateMatchResult: (matchId: string, winnerId: string, s1: number, s2: number) => Promise<void>;
-  updateMatchParticipants: (matchId: string, p1: string | null, p2: string | null) => Promise<void>;
+  updateMatchResult: (
+    matchId: string,
+    winnerId: string,
+    s1: number,
+    s2: number,
+  ) => Promise<void>;
+  updateMatchParticipants: (
+    matchId: string,
+    p1: string | null,
+    p2: string | null,
+  ) => Promise<void>;
   resetTournamentBracket: (tournamentId: string) => Promise<void>;
-  updateScoring: (tournamentId: string, scoring: ScoringConfig) => Promise<void>;
-  saveClassicMapResult: (result: Omit<ClassicMapResult, "id"> & { id?: string }) => Promise<void>;
+  updateScoring: (
+    tournamentId: string,
+    scoring: ScoringConfig,
+  ) => Promise<void>;
+  saveClassicMapResult: (
+    result: Omit<ClassicMapResult, "id"> & { id?: string },
+  ) => Promise<void>;
   deleteClassicMapResult: (id: string) => Promise<void>;
 }
 
@@ -103,7 +133,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(tournament),
-        })
+        }),
       );
 
       // Boshlang'ich matchlarni yaratish (TDM uchun bracket)
@@ -123,11 +153,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       }));
       return saved;
     },
-    [mutate]
+    [mutate],
   );
 
   const updateTournament = useCallback(
-    async (id: string, updates: Partial<Omit<Tournament, "id" | "createdAt">>) => {
+    async (
+      id: string,
+      updates: Partial<Omit<Tournament, "id" | "createdAt">>,
+    ) => {
       await apiFetch(`${API_URL}/tournaments/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -135,10 +168,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       });
       mutate((d) => ({
         ...d,
-        tournaments: d.tournaments.map((t) => (t.id === id ? { ...t, ...updates } : t)),
+        tournaments: d.tournaments.map((t) =>
+          t.id === id ? { ...t, ...updates } : t,
+        ),
       }));
     },
-    [mutate]
+    [mutate],
   );
 
   const deleteTournament = useCallback(
@@ -152,24 +187,29 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         classicResults: d.classicResults.filter((r) => r.tournamentId !== id),
       }));
     },
-    [mutate]
+    [mutate],
   );
 
   // ─── Groups ──────────────────────────────────────────────────────────────────
   const addGroup = useCallback(
     async (tournamentId: string, name: string, tag: string): Promise<Group> => {
-      const group = { id: uid("g"), tournamentId, name, tag: tag.toUpperCase().slice(0, 2) };
+      const group = {
+        id: uid("g"),
+        tournamentId,
+        name,
+        tag: tag.toUpperCase().slice(0, 2),
+      };
       const saved = normalizeId(
         await apiFetch(`${API_URL}/groups`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(group),
-        })
+        }),
       );
       mutate((d) => ({ ...d, groups: [...d.groups, saved] }));
       return saved;
     },
-    [mutate]
+    [mutate],
   );
 
   const deleteGroup = useCallback(
@@ -181,7 +221,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         players: d.players.filter((p) => p.groupId !== id),
       }));
     },
-    [mutate]
+    [mutate],
   );
 
   // ─── Players ─────────────────────────────────────────────────────────────────
@@ -190,7 +230,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       let isFull = false;
       setData((d) => {
         const tournament = d.tournaments.find((t) => t.id === p.tournamentId);
-        const currentCount = d.players.filter((item) => item.tournamentId === p.tournamentId).length;
+        const currentCount = d.players.filter(
+          (item) => item.tournamentId === p.tournamentId,
+        ).length;
         if (currentCount >= (tournament?.maxPlayers ?? 32)) {
           isFull = true;
         }
@@ -204,12 +246,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(player),
-        })
+        }),
       );
       mutate((d) => ({ ...d, players: [...d.players, saved] }));
       return saved;
     },
-    [mutate]
+    [mutate],
   );
 
   const updatePlayer = useCallback(
@@ -224,7 +266,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         players: d.players.map((p) => (p.id === id ? { ...p, ...updates } : p)),
       }));
     },
-    [mutate]
+    [mutate],
   );
 
   const deletePlayer = useCallback(
@@ -232,7 +274,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       await apiFetch(`${API_URL}/players/${id}`, { method: "DELETE" });
       mutate((d) => ({ ...d, players: d.players.filter((p) => p.id !== id) }));
     },
-    [mutate]
+    [mutate],
   );
 
   // ─── Matches ─────────────────────────────────────────────────────────────────
@@ -250,12 +292,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify(updatedMatches),
       });
     },
-    [mutate]
+    [mutate],
   );
 
   const updateMatchParticipants = useCallback(
     async (matchId: string, p1: string | null, p2: string | null) => {
-      const updates = { player1Id: p1, player2Id: p2, score1: 0, score2: 0, winnerId: null };
+      const updates = {
+        player1Id: p1,
+        player2Id: p2,
+        score1: 0,
+        score2: 0,
+        winnerId: null,
+      };
       await apiFetch(`${API_URL}/matches/${matchId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -263,10 +311,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       });
       mutate((d) => ({
         ...d,
-        matches: d.matches.map((m) => (m.id === matchId ? { ...m, ...updates } : m)),
+        matches: d.matches.map((m) =>
+          m.id === matchId ? { ...m, ...updates } : m,
+        ),
       }));
     },
-    [mutate]
+    [mutate],
   );
 
   const resetTournamentBracket = useCallback(
@@ -277,20 +327,29 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           m.tournamentId === tournamentId
             ? m.round === 0
               ? { ...m, score1: 0, score2: 0, winnerId: null }
-              : { ...m, player1Id: null, player2Id: null, score1: 0, score2: 0, winnerId: null }
-            : m
+              : {
+                  ...m,
+                  player1Id: null,
+                  player2Id: null,
+                  score1: 0,
+                  score2: 0,
+                  winnerId: null,
+                }
+            : m,
         );
         return { ...d, matches: updatedMatches };
       });
 
-      const changes = updatedMatches.filter((m) => m.tournamentId === tournamentId);
+      const changes = updatedMatches.filter(
+        (m) => m.tournamentId === tournamentId,
+      );
       await apiFetch(`${API_URL}/matches/bulk-update`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(changes),
       });
     },
-    [mutate]
+    [mutate],
   );
 
   // ─── Scoring ─────────────────────────────────────────────────────────────────
@@ -304,18 +363,25 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       mutate((d) => ({
         ...d,
         tournaments: d.tournaments.map((t) =>
-          t.id === tournamentId ? { ...t, scoring } : t
+          t.id === tournamentId ? { ...t, scoring } : t,
         ),
       }));
     },
-    [mutate]
+    [mutate],
   );
 
   // ─── Classic Results ──────────────────────────────────────────────────────────
   const saveClassicMapResult = useCallback(
     async (result: Omit<ClassicMapResult, "id"> & { id?: string }) => {
-      const isNew = !result.id;
       const payload = { ...result, id: result.id || uid("map") };
+
+      // Determine if it's a new result by checking the current state
+      let isNew = false;
+      setData((d) => {
+        isNew = !d.classicResults.some((r) => r.id === payload.id);
+        return d;
+      });
+
       const method = isNew ? "POST" : "PUT";
       const url = isNew
         ? `${API_URL}/classicResults`
@@ -326,7 +392,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           method,
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
-        })
+        }),
       );
 
       mutate((d) => ({
@@ -336,7 +402,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
           : [...d.classicResults, saved],
       }));
     },
-    [mutate]
+    [mutate],
   );
 
   const deleteClassicMapResult = useCallback(
@@ -347,7 +413,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         classicResults: d.classicResults.filter((r) => r.id !== id),
       }));
     },
-    [mutate]
+    [mutate],
   );
 
   return (

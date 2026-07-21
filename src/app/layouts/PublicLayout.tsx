@@ -41,7 +41,7 @@ export default function PublicLayout() {
             "radial-gradient(ellipse 80% 40% at 50% -5%, rgba(242,169,0,0.15) 0%, transparent 70%)",
         }}
       />
-      
+
       {/* Light mode ambient glow */}
       <div
         className="fixed inset-0 pointer-events-none z-0 dark:hidden block"
@@ -56,10 +56,12 @@ export default function PublicLayout() {
           ═══════════════════════════════════════════════════════════ */}
       <header
         className="sticky top-0 z-50 border-b border-primary/20 bg-background/80 backdrop-blur-xl"
-        style={{ isolation: "isolate", boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)" }}
+        style={{
+          isolation: "isolate",
+          boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+        }}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center gap-4">
-
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3 flex-shrink-0 group">
             <div className="w-9 h-9 rounded bg-primary/10 border border-primary/30 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
@@ -95,7 +97,6 @@ export default function PublicLayout() {
 
           {/* Right side */}
           <div className="ml-auto flex items-center gap-2 sm:gap-3">
-
             {/* Telegram tugmasi — desktop */}
             <a
               href={TELEGRAM_CHANNEL_URL}
@@ -169,7 +170,6 @@ export default function PublicLayout() {
           ═══════════════════════════════════════════════════════════ */}
       <footer className="relative z-10 border-t border-border py-6 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-
           {/* Left — brend */}
           <span className="text-xs font-mono text-muted-foreground/40 tracking-widest uppercase text-center sm:text-left">
             PUBG ORG · Tournament Platform · 2025
